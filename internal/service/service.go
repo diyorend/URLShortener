@@ -27,6 +27,10 @@ func (s *URLService) Shorten(longURL string) (string, error) {
 	return code, nil
 }
 
+func (s *URLService) Get(code string) (string, error) {
+	return s.store.Get(code)
+}
+
 func generateCode(n int) string {
 	b := make([]byte, n/2)
 	rand.Read(b)
