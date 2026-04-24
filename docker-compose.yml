@@ -1,4 +1,19 @@
 services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - DATABASE_URL=postgres://user:password@postgres:5432/urlshortener?sslmode=disable
+      - REDIS_URL=redis:6379
+    networks:
+      - backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
   postgres:
     image: postgres:15-alpine
     environment:
@@ -7,6 +22,13 @@ services:
       POSTGRES_DB: urlshortener
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d urlshortener"]
+      interval: 5s
+      timeout: 5s 
+      retries: 5
+    networks:
+      - backend
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
@@ -14,6 +36,11 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    networks:
+      - backend
 
 volumes:
   postgres_data:
+networks:
+  backend:
+    driver: bridge

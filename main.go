@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"log"
+	"os"
 	"urlshortener/internal/handler"
 	"urlshortener/internal/service"
 	"urlshortener/internal/storage"
@@ -16,14 +16,26 @@ func main() {
 
 	// 1. Initialize Storage (Postgres)
 	// Note: Use the connection string from docker-compose
-	connStr := "postgres://user:password@localhost:5432/urlshortener?sslmode=disable"
-	pgStore, err := storage.NewPostgresStorage(ctx, connStr)
-	if err != nil {
-		log.Fatal(err)
+	// Default to localhost if the variable isn't set
+	dbURL := os.Getenv("DATABASE_URL")
+	if dbURL == "" {
+		dbURL = "postgres://user:password@postgres:5432/urlshortener?sslmode=disable"
 	}
 
+	redisURL := os.Getenv("REDIS_URL")
+	if redisURL == "" {
+		redisURL = "redis:6379"
+	}
+	pgStore, err := storage.NewPostgresStorage(ctx, dbURL)
+	if err != nil {
+		e.Logger.Fatalf("Failed to connect to Postgres: %v", err)
+	}
+	rdbStore := storage.NewRedisStorage(redisURL)
+
+	combinedStore := storage.NewCachedStorage(pgStore, rdbStore)
+
 	// 2. Initialize Service (Inject Storage)
-	svc := service.NewURLService((pgStore))
+	svc := service.NewURLService((combinedStore))
 
 	// 3. Initialize Handler (Inject Service)
 	h := handler.NewURLHandler(svc)
