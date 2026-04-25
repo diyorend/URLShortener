@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		e.Logger.Fatalf("Failed to connect to Postgres: %v", err)
 	}
-	rdbStore := storage.NewRedisStorage(redisURL)
+	rdbStore, _ := storage.NewRedisStorage(ctx, redisURL)
 
 	combinedStore := storage.NewCachedStorage(pgStore, rdbStore)
 

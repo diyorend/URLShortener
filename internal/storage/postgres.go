@@ -49,3 +49,9 @@ func (s *PostgresStorage) Get(short string) (string, error) {
 		"SELECT long_url FROM urls WHERE short_code = $1", short).Scan(&long)
 	return long, err
 }
+
+func (s *PostgresStorage) IncrementClicks(short string) error {
+	_, err := s.conn.Exec(context.Background(),
+		"UPDATE urls SET clicks = clicks + 1 WHERE short_code = $1", short)
+	return err
+}
