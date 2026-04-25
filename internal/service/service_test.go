@@ -1,53 +1,65 @@
 package service
 
 import (
+	"context"
+	"errors"
 	"testing"
+	"urlshortener/internal/storage"
 )
 
-// MockStorage is a "fake" database for testing
-type MockStorage struct {
-	data   map[string]string
-	clicks map[string]int
-}
+func TestShorten_StoresURL(t *testing.T) {
+	fake := storage.NewFakeStorage()
+	svc := NewURLService(fake)
+	ctx := context.Background()
 
-func (m *MockStorage) Save(short, long string) error {
-	m.data[short] = long
-	return nil
-}
-
-func (m *MockStorage) Get(short string) (string, error) {
-	return m.data[short], nil
-}
-
-func (m *MockStorage) IncrementClicks(short string) error {
-	if m.clicks == nil {
-		m.clicks = make(map[string]int)
+	code, err := svc.Shorten(ctx, "https://archlinux.org")
+	if err != nil {
+		t.Fatalf("Shorten failed: %v", err)
 	}
-	m.clicks[short]++
-	return nil
+	if len(code) != 6 {
+		t.Errorf("expected 6-char code, got %q (len %d)", code, len(code))
+	}
 }
 
-func TestShortenAndRedirect(t *testing.T) {
-	mock := &MockStorage{
-		data:   make(map[string]string),
-		clicks: make(map[string]int),
-	}
-	svc := NewURLService(mock)
+func TestGet_ReturnsOriginalURL(t *testing.T) {
+	fake := storage.NewFakeStorage()
+	svc := NewURLService(fake)
+	ctx := context.Background()
 
 	longURL := "https://archlinux.org"
-	code, _ := svc.Shorten(longURL)
+	code, _ := svc.Shorten(ctx, longURL)
 
-	// Test Retrieval
-	savedURL, err := svc.Get(code)
+	got, err := svc.Get(ctx, code)
 	if err != nil {
-		t.Fatalf("Failed to get URL: %v", err)
+		t.Fatalf("Get failed: %v", err)
 	}
-
-	if savedURL != longURL {
-		t.Errorf("Expected %s, got %s", longURL, savedURL)
+	if got != longURL {
+		t.Errorf("expected %q, got %q", longURL, got)
 	}
+}
 
-	if mock.clicks[code] != 1 {
-		t.Errorf("Expected 1 click, got %d", mock.clicks[code])
+func TestGet_NotFound(t *testing.T) {
+	fake := storage.NewFakeStorage()
+	svc := NewURLService(fake)
+	ctx := context.Background()
+
+	_, err := svc.Get(ctx, "nosuchcode")
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	// errors.Is works through wrapped errors — service wraps storage errors with fmt.Errorf + %w
+	if !errors.Is(err, storage.ErrNotFound) {
+		t.Errorf("expected ErrNotFound, got %v", err)
+	}
+}
+
+func TestShorten_EmptyURL(t *testing.T) {
+	fake := storage.NewFakeStorage()
+	svc := NewURLService(fake)
+	ctx := context.Background()
+
+	_, err := svc.Shorten(ctx, "")
+	if err == nil {
+		t.Fatal("expected error for empty URL, got nil")
 	}
 }

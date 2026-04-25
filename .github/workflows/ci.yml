@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Run tests
+        # -race detects data races (concurrent access bugs).
+        # These are the hardest bugs to find in production — catch them in CI.
+        run: go test ./... -race -v
+
+      - name: Build
+        run: go build ./...
