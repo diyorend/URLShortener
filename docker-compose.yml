@@ -4,6 +4,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+      - BASE_URL=http://localhost:8080
       - DATABASE_URL=postgres://user:password@postgres:5432/urlshortener?sslmode=disable
       - REDIS_URL=redis:6379
     networks:

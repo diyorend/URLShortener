@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package urlshortener;
+
+// This defines the Go package path for generated code
+option go_package = "urlshortener/api/proto";
+
+service URLService {
+  rpc ShortenURL (ShortenRequest) returns (ShortenResponse);
+  rpc GetURL (GetRequest) returns (GetResponse);
+}
+
+message ShortenRequest {
+  string url = 1;
+}
+
+message ShortenResponse {
+  string short_code = 1;
+}
+
+message GetRequest {
+  string short_code = 1;
+}
+
+message GetResponse {
+  string long_url = 1;
+}

@@ -1,17 +1,29 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 	"urlshortener/internal/service"
+
 	"github.com/labstack/echo/v4"
 )
 
 type URLHandler struct {
-	svc *service.URLService
+	svc     *service.URLService
+	baseURL string
 }
 
 func NewURLHandler(svc *service.URLService) *URLHandler {
-	return &URLHandler{svc: svc}
+	base := os.Getenv("BASE_URL")
+	if base == "" {
+		base = "http://localhost:8080"
+	}
+
+	return &URLHandler{
+		svc:     svc,
+		baseURL: base,
+	}
 }
 
 // Request struct for JSON binding
@@ -30,7 +42,7 @@ func (h *URLHandler) Shorten(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	return c.JSON(http.StatusCreated, map[string]string{"short_url": "http://localhost:8080/" + code})
+	return c.JSON(http.StatusCreated, map[string]string{"short_url": fmt.Sprintf("%s/%s", h.baseURL, code)})
 }
 
 func (h *URLHandler) Redirect(c echo.Context) error {
@@ -46,4 +58,3 @@ func (h *URLHandler) Redirect(c echo.Context) error {
 	// 3. Redirect the user's browser to the original site
 	return c.Redirect(http.StatusMovedPermanently, longURL)
 }
-

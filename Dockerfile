@@ -24,8 +24,10 @@ WORKDIR /root/
 # Copy only the compiled binary from the builder stage 
 COPY --from=builder /app/url-shortener .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=builder /app/public ./public
 
 EXPOSE 8080
+EXPOSE 50051
 
 CMD ["./url-shortener"]
 

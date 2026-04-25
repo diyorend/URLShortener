@@ -14,9 +14,6 @@ func main() {
 	ctx := context.Background()
 	e := echo.New()
 
-	// 1. Initialize Storage (Postgres)
-	// Note: Use the connection string from docker-compose
-	// Default to localhost if the variable isn't set
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
 		dbURL = "postgres://user:password@postgres:5432/urlshortener?sslmode=disable"
@@ -34,16 +31,15 @@ func main() {
 
 	combinedStore := storage.NewCachedStorage(pgStore, rdbStore)
 
-	// 2. Initialize Service (Inject Storage)
 	svc := service.NewURLService((combinedStore))
 
-	// 3. Initialize Handler (Inject Service)
 	h := handler.NewURLHandler(svc)
 
-	// 4. Routes
+	e.Static("/", "public")
+	e.File("/", "public/index.html")
+
 	e.POST("/shorten", h.Shorten)
 	e.GET("/:code", h.Redirect)
 
-	// 5. Start Server
 	e.Logger.Fatal(e.Start(":8080"))
 }
