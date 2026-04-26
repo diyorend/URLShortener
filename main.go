@@ -60,9 +60,9 @@ func main() {
 	e.HideBanner = true
 
 	// Middleware runs on every request, in order.
-	e.Use(middleware.RequestID()) // adds X-Request-ID to every request/response
-	e.Use(middleware.Recover())   // catches panics → 500 instead of crashing the server
-	e.Use(middleware.Logger())    // logs method, path, status, latency for every request
+	e.Use(middleware.RequestID())     // adds X-Request-ID to every request/response
+	e.Use(middleware.Recover())       // catches panics → 500 instead of crashing the server
+	e.Use(middleware.RequestLogger()) // logs method, path, status, latency for every request
 
 	// --- Routes ---
 	h := handler.NewURLHandler(svc)

@@ -1,11 +1,7 @@
-# Compiled binary
 url-shortener
 
-# Environment file with real secrets — never commit this
 .env
 
-# Go test cache
 *.test
 
-# OS files
 .DS_Store
