@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"strings"
 	"urlshortener/internal/storage"
 )
 
@@ -24,7 +25,9 @@ func (s *URLService) Shorten(ctx context.Context, longURL string) (string, error
 	if longURL == "" {
 		return "", fmt.Errorf("service.Shorten: url must not be empty")
 	}
-
+	if !strings.HasPrefix(longURL, "http://") && !strings.HasPrefix(longURL, "https://") {
+		longURL = "https://" + longURL
+	}
 	code := generateCode(6)
 
 	if err := s.store.Save(ctx, code, longURL); err != nil {

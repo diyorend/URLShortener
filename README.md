@@ -4,20 +4,20 @@ A production-grade URL shortener built with Go, demonstrating the core patterns 
 
 ## What This Teaches
 
-| Concept | Where It Appears |
-|---|---|
-| Interfaces & dependency injection | `storage.URLStorage`, `handler.URLShortener` |
-| Context propagation | Every function signature: `func(ctx context.Context, ...)` |
-| Connection pool | `pgxpool.Pool` in `postgres.go` |
-| Cache-aside pattern | `CachedStorage.Get()` in `storage.go` |
-| Sentinel errors | `storage.ErrNotFound`, `errors.Is()` in handler |
-| Goroutines (fire & forget) | Click counter increment after cache hit |
-| Graceful shutdown | `signal.Notify` + `e.Shutdown()` in `main.go` |
-| Prometheus metrics | `/metrics` endpoint, counter + histogram |
-| Multi-stage Docker build | `Dockerfile` |
-| Health checks | `/health` endpoint, `docker-compose` healthcheck |
-| Unit tests (no Docker) | `service_test.go` with `FakeStorage` |
-| GitHub Actions CI | `.github/workflows/ci.yml` |
+| Concept                           | Where It Appears                                           |
+| --------------------------------- | ---------------------------------------------------------- |
+| Interfaces & dependency injection | `storage.URLStorage`, `handler.URLShortener`               |
+| Context propagation               | Every function signature: `func(ctx context.Context, ...)` |
+| Connection pool                   | `pgxpool.Pool` in `postgres.go`                            |
+| Cache-aside pattern               | `CachedStorage.Get()` in `storage.go`                      |
+| Sentinel errors                   | `storage.ErrNotFound`, `errors.Is()` in handler            |
+| Goroutines (fire & forget)        | Click counter increment after cache hit                    |
+| Graceful shutdown                 | `signal.Notify` + `e.Shutdown()` in `main.go`              |
+| Prometheus metrics                | `/metrics` endpoint, counter + histogram                   |
+| Multi-stage Docker build          | `Dockerfile`                                               |
+| Health checks                     | `/health` endpoint, `docker-compose` healthcheck           |
+| Unit tests (no Docker)            | `service_test.go` with `FakeStorage`                       |
+| GitHub Actions CI                 | `.github/workflows/ci.yml`                                 |
 
 ## Architecture
 
@@ -76,8 +76,9 @@ curl -X POST http://localhost:8080/shorten \
 ```
 
 Response:
+
 ```json
-{"short_url": "http://localhost:8080/a3f9c2"}
+{ "short_url": "http://localhost:8080/a3f9c2" }
 ```
 
 ### Follow a Short URL

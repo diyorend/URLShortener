@@ -1,7 +1,7 @@
 # Stage 1: Builder
 # We use a full Go image to compile the binary.
 # This image has the Go compiler — it's ~800MB.
-FROM golang:1.22-alpine AS builder
+FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
 
